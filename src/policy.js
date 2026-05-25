@@ -29,7 +29,7 @@ export function parsePolicy(content, source = "policy") {
   }
 
   const mode = normalizeMode(policy.mode);
-  const allowed = normalizeRules(policy.allowed ?? policy.allow ?? []);
+  const allowed = normalizeRules(loaded.allowed ?? loaded.allow ?? []);
   return { version: 1, mode, allowed, source };
 }
 

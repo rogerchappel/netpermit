@@ -1,0 +1,8 @@
+version: 1
+mode: advisory
+allowed:
+  - host: example.com
+    ports: [443]
+    purposes: [download]
+    commands: [curl]
+

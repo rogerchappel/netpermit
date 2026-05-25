@@ -1,0 +1,24 @@
+version: 1
+mode: strict
+allowed:
+  - host: registry.npmjs.org
+    ports: [443]
+    purposes: [package-install]
+    commands: [npm]
+  - host: pypi.org
+    ports: [443]
+    purposes: [package-install]
+    commands: [pip]
+  - host: files.pythonhosted.org
+    ports: [443]
+    purposes: [package-install]
+    commands: [pip]
+  - host: github.com
+    ports: [22, 443]
+    purposes: [source-control]
+    commands: [git]
+  - host: example.com
+    ports: [443]
+    purposes: [download]
+    commands: [curl]
+

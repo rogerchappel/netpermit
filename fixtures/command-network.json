@@ -1,0 +1,13 @@
+{
+  "destinations": [
+    {
+      "url": "https://registry.npmjs.org/netpermit",
+      "purpose": "package-install",
+      "command": "npm"
+    },
+    {
+      "remote": "git@github.com:rogerchappel/netpermit.git"
+    }
+  ]
+}
+

@@ -1,6 +1,6 @@
-# ../netpermit
+# netpermit
 
-Local-first policy checker for outbound network intent
+Local-first preflight policy checker for outbound network intent.
 
 ## Status
 
@@ -9,19 +9,73 @@ security posture before using it in production.
 
 ## Install
 
-Replace this section with the generated repository's installation steps.
+Install from npm once published, or run directly from a checkout:
 
 ```sh
-pnpm install
+npm install
+npx netpermit --help
 ```
 
 ## Use
 
-Replace this section with the smallest useful example for the generated
-repository.
+Create a starter allowlist:
 
 ```sh
-pnpm dev
+netpermit init --out netpermit.yaml
+```
+
+Check a script before running it:
+
+```sh
+netpermit check scripts/bootstrap.sh --policy netpermit.yaml
+```
+
+Check a declared command manifest and emit JSON:
+
+```sh
+netpermit check-manifest command-network.json --policy netpermit.yaml --json
+```
+
+Policy files use YAML:
+
+```yaml
+version: 1
+mode: strict
+allowed:
+  - host: registry.npmjs.org
+    ports: [443]
+    purposes: [package-install]
+    commands: [npm]
+```
+
+`mode: strict` exits non-zero for blocked or unknown destinations.
+`mode: advisory` reports findings without failing the command.
+
+## Scope
+
+`netpermit` is a preflight checker. It scans explicit declarations and obvious
+script patterns, then compares them to a local policy. It is not a runtime
+sandbox, firewall, packet filter, or guarantee that a command will only access
+reported destinations.
+
+## Development
+
+Install dependencies:
+
+```sh
+npm install
+```
+
+Run all package checks:
+
+```sh
+npm run check
+```
+
+Run the CLI smoke test:
+
+```sh
+npm run smoke
 ```
 
 ## Verify

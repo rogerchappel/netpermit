@@ -33,11 +33,11 @@ function readManifestRecords(parsed, source) {
 
 function normalizeManifestRecord(record, source, index) {
   assertObject(record, `${source}[${index}]`);
-  const fields = {
+  const fields = compactFields({
     purpose: record.purpose,
     command: record.command,
     source: record.source ?? source,
-  };
+  });
 
   const destination = record.url
     ? destinationFromUrl(record.url, fields)
@@ -49,4 +49,8 @@ function normalizeManifestRecord(record, source, index) {
     throw new NetpermitError(`${source}[${index}] must include a host, url, or remote`, "MANIFEST_HOST");
   }
   return destination;
+}
+
+function compactFields(fields) {
+  return Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined));
 }

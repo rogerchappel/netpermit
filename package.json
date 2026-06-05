@@ -14,7 +14,8 @@
     "src",
     "examples",
     "fixtures",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "node scripts/build-check.js",

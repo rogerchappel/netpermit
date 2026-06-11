@@ -114,3 +114,9 @@ npm run smoke
 npm run package:smoke
 npm run release:check
 ```
+
+## Verification
+
+Run the release-readiness checks that match this package before publishing or opening a release PR.
+
+- `npm run build` - compile the package artifacts

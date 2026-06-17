@@ -48,7 +48,7 @@ jobs:
             exit 1
           fi
 
-      - name: Run optional Node checks
+      - name: Run release readiness checks
         run: |
           set -euo pipefail
 
@@ -63,7 +63,5 @@ jobs:
             npm install
           fi
 
-          npm run lint --if-present
-          npm test --if-present
-          npm run typecheck --if-present
-          npm run build --if-present
+          npm run release:readiness
+          npm run release:check

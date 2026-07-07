@@ -131,3 +131,7 @@ npm run release:check
 Run the release-readiness checks that match this package before publishing or opening a release PR.
 
 - `npm run build` - compile the package artifacts
+
+## Limitations
+
+netpermit is a local-first helper for preparing reviewable evidence. It does not replace human review, live system validation, or project-specific policy checks, and generated output should be inspected before use in release or operational decisions.

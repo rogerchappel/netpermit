@@ -26,7 +26,8 @@
     "check": "npm run build && npm test",
     "smoke": "bash scripts/smoke.sh",
     "package:smoke": "npm pack --dry-run",
-    "release:check": "npm run check && npm test && npm run build && npm run smoke && npm run package:smoke",
+    "audit:prod": "npm audit --omit=dev",
+    "release:check": "npm run check && npm test && npm run build && npm run smoke && npm run audit:prod && npm run package:smoke",
     "prepublishOnly": "npm run check",
     "release:readiness": "node scripts/validate-release-readiness.mjs"
   },
@@ -53,6 +54,6 @@
   },
   "dependencies": {
     "commander": "^12.1.0",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.3.0"
   }
 }

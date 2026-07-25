@@ -16,5 +16,11 @@ if node src/cli.js check fixtures/blocked.sh --policy fixtures/netpermit.yaml >/
 fi
 
 node src/cli.js check fixtures/blocked.sh --policy fixtures/advisory.yaml >/dev/null
-node src/cli.js check-manifest fixtures/command-network.json --policy fixtures/netpermit.yaml --json >/dev/null
+node src/cli.js check fixtures/blocked.sh --policy fixtures/netpermit.yaml --mode advisory >/dev/null
 
+if node src/cli.js check fixtures/blocked.sh --policy fixtures/netpermit.yaml --mode unsupported >/dev/null 2>&1; then
+  echo "Expected an unsupported mode override to fail." >&2
+  exit 1
+fi
+
+node src/cli.js check-manifest fixtures/command-network.json --policy fixtures/netpermit.yaml --json >/dev/null

@@ -22,3 +22,22 @@ curl https://example.com/file.tgz
   );
 });
 
+test("ignores destinations in shell comments and preserves executable source lines", () => {
+  const destinations = scanScriptText(
+    [
+      "# curl https://comment.example/file",
+      "  # npm install commented-package",
+      "curl https://download.example/file # https://trailing-comment.example/file",
+      "npm ci # pip install commented-package",
+    ].join("\n"),
+    "bootstrap.sh",
+  );
+
+  assert.deepEqual(
+    destinations.map(({ host, command, source, line }) => ({ host, command, source, line })),
+    [
+      { host: "download.example", command: "curl", source: "bootstrap.sh", line: 3 },
+      { host: "registry.npmjs.org", command: "npm", source: "bootstrap.sh", line: 4 },
+    ],
+  );
+});

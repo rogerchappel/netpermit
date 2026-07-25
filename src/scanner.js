@@ -14,8 +14,9 @@ export function scanScriptText(content, source = "script") {
 
   lines.forEach((line, index) => {
     const lineNumber = index + 1;
-    destinations.push(...scanUrls(line, source, lineNumber));
-    destinations.push(...scanKnownCommands(line, source, lineNumber));
+    const executable = stripComment(line);
+    destinations.push(...scanUrls(executable, source, lineNumber));
+    destinations.push(...scanKnownCommands(executable, source, lineNumber));
   });
 
   return dedupeDestinations(destinations);
@@ -35,7 +36,7 @@ function scanUrls(line, source, lineNumber) {
 }
 
 function scanKnownCommands(line, source, lineNumber) {
-  const trimmed = stripComment(line).trim();
+  const trimmed = line.trim();
   if (!trimmed) return [];
 
   const destinations = [];

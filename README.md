@@ -50,6 +50,9 @@ allowed:
 
 `mode: strict` exits non-zero for blocked or unknown destinations.
 `mode: advisory` reports findings without failing the command.
+Either command can override the policy for one run with `--mode strict` or
+`--mode advisory`; other values are rejected. Shell comments are ignored while
+scanning scripts, including URLs and known commands after `#`.
 
 ## Scope
 

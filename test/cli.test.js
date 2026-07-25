@@ -51,7 +51,7 @@ test("check rejects unsupported modes before emitting a report", () => {
 
   assert.equal(result.status, 1);
   assert.equal(result.stdout, "");
-  assert.match(result.stderr, /allowed choices are strict, advisory/);
+  assert.match(result.stderr, /Allowed choices are strict, advisory/);
 });
 
 test("check-manifest rejects unsupported modes before emitting a report", () => {
@@ -67,5 +67,5 @@ test("check-manifest rejects unsupported modes before emitting a report", () => 
 
   assert.equal(result.status, 1);
   assert.equal(result.stdout, "");
-  assert.match(result.stderr, /allowed choices are strict, advisory/);
+  assert.match(result.stderr, /Allowed choices are strict, advisory/);
 });

@@ -2,7 +2,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { Command } from "commander";
+import { Command, Option } from "commander";
 import { NetpermitError } from "./errors.js";
 import { evaluateDestinations, shouldExitNonZero } from "./matcher.js";
 import { loadManifest } from "./manifest.js";
@@ -26,7 +26,7 @@ program
   .argument("<script>", "script file to scan")
   .requiredOption("-p, --policy <path>", "netpermit YAML policy file")
   .option("--json", "emit JSON report")
-  .option("--mode <mode>", "override policy mode: strict or advisory")
+  .addOption(modeOption())
   .description("Scan a shell script for obvious network intent and evaluate it against policy.")
   .action(async (scriptPath, options) => {
     const policy = await loadPolicy(options.policy);
@@ -39,7 +39,7 @@ program
   .argument("<manifest>", "JSON command network manifest")
   .requiredOption("-p, --policy <path>", "netpermit YAML policy file")
   .option("--json", "emit JSON report")
-  .option("--mode <mode>", "override policy mode: strict or advisory")
+  .addOption(modeOption())
   .description("Evaluate a declared command network manifest against policy.")
   .action(async (manifestPath, options) => {
     const policy = await loadPolicy(options.policy);
@@ -85,3 +85,9 @@ export function cliPath() {
   return fileURLToPath(import.meta.url);
 }
 
+function modeOption() {
+  return new Option("--mode <mode>", "override policy mode: strict or advisory").choices([
+    "strict",
+    "advisory",
+  ]);
+}

@@ -28,6 +28,40 @@ allow:
   ]);
 });
 
+test("preserves omitted ports as unrestricted and accepts numeric port strings", () => {
+  const policy = parsePolicy(`
+version: 1
+allowed:
+  - host: unrestricted.example
+  - host: restricted.example
+    ports: [80, "443"]
+`);
+
+  assert.deepEqual(policy.allowed.map((rule) => rule.ports), [[], [80, 443]]);
+});
+
+test("rejects an invalid scalar port with its policy field", () => {
+  assert.throws(
+    () => parsePolicy("version: 1\nallowed:\n  - host: example.com\n    port: nope\n"),
+    (error) => {
+      assert.equal(error.code, "POLICY_PORT");
+      assert.match(error.message, /policy\.allowed\[0\]\.port/);
+      return true;
+    },
+  );
+});
+
+test("rejects an invalid port list entry with its index", () => {
+  assert.throws(
+    () => parsePolicy("version: 1\nallowed:\n  - host: example.com\n    ports: [443, nope]\n"),
+    (error) => {
+      assert.equal(error.code, "POLICY_PORT");
+      assert.match(error.message, /policy\.allowed\[0\]\.ports\[1\]/);
+      return true;
+    },
+  );
+});
+
 test("default policy is valid", () => {
   assert.equal(parsePolicy(createDefaultPolicy()).version, 1);
 });

@@ -69,3 +69,17 @@ test("check-manifest rejects unsupported modes before emitting a report", () => 
   assert.equal(result.stdout, "");
   assert.match(result.stderr, /Allowed choices are strict, advisory/);
 });
+
+test("check rejects malformed policy ports without emitting a report", () => {
+  const result = runCli(
+    "check",
+    "fixtures/blocked.sh",
+    "--policy",
+    "fixtures/invalid-port.yaml",
+    "--json",
+  );
+
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, "");
+  assert.match(result.stderr, /POLICY_PORT: policy\.allowed\[0\]\.ports\[0\]/);
+});

@@ -50,6 +50,9 @@ allowed:
 
 `mode: strict` exits non-zero for blocked or unknown destinations.
 `mode: advisory` reports findings without failing the command.
+Omitting `port`/`ports` intentionally allows every port for that host. When the
+field is present, each value must be an integer from 1 to 65535; invalid values
+are policy errors and are never treated as unrestricted access.
 Either command can override the policy for one run with `--mode strict` or
 `--mode advisory`; other values are rejected. Shell comments are ignored while
 scanning scripts, including URLs and known commands after `#`.

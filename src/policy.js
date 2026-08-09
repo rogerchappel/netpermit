@@ -66,11 +66,28 @@ function normalizeRule(rule, index) {
 
   return {
     host,
-    ports: normalizeList(rule.ports ?? rule.port, (value) => normalizePort(value, null)),
+    ports: normalizePorts(rule, index),
     purposes: normalizeStringList(rule.purposes ?? rule.purpose),
     commands: normalizeStringList(rule.commands ?? rule.command),
     description: rule.description ? String(rule.description) : undefined,
   };
+}
+
+function normalizePorts(rule, ruleIndex) {
+  const field = Object.hasOwn(rule, "ports") ? "ports" : Object.hasOwn(rule, "port") ? "port" : null;
+  if (!field) return [];
+
+  const raw = rule[field];
+  const values = Array.isArray(raw) ? raw : [raw];
+  return values.map((value, valueIndex) => {
+    const port = normalizePort(value, null);
+    if (port !== null) return port;
+
+    const path = Array.isArray(raw)
+      ? `policy.allowed[${ruleIndex}].${field}[${valueIndex}]`
+      : `policy.allowed[${ruleIndex}].${field}`;
+    throw new NetpermitError(`${path} must be an integer from 1 to 65535`, "POLICY_PORT");
+  });
 }
 
 function normalizeMode(mode) {

@@ -57,6 +57,13 @@ Either command can override the policy for one run with `--mode strict` or
 `--mode advisory`; other values are rejected. Shell comments are ignored while
 scanning scripts, including URLs and known commands after `#`.
 
+Known package-manager commands include npm `install`/`i`/`ci`/`update`/`publish`,
+pnpm `install`/`i`/`add`/`update`/`up`, Yarn `install`/`add`/`upgrade`/`up`, and
+pip/pip3 `install`. pnpm is reported against `registry.npmjs.org`; Yarn is
+reported against `registry.yarnpkg.com`. Detection is intentionally limited to
+these explicit command forms at shell-command boundaries, rather than command
+names appearing as arguments or arbitrary package-manager subcommands.
+
 ## Scope
 
 `netpermit` is a preflight checker. It scans explicit declarations and obvious

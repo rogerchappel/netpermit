@@ -62,7 +62,8 @@ pnpm `install`/`i`/`add`/`update`/`up`, Yarn `install`/`add`/`upgrade`/`up`, and
 pip/pip3 `install`. pnpm is reported against `registry.npmjs.org`; Yarn is
 reported against `registry.yarnpkg.com`. Detection is intentionally limited to
 these explicit command forms at shell-command boundaries, rather than command
-names appearing as arguments or arbitrary package-manager subcommands.
+names appearing as arguments or arbitrary package-manager subcommands. A command
+boundary is the start of a line or a command following `&&`, `||`, or `;`.
 
 ## Scope
 

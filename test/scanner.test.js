@@ -117,3 +117,44 @@ test("does not treat nearby pnpm and Yarn text as registry access", () => {
 
   assert.deepEqual(destinations, []);
 });
+
+test("scans npm and pip only at supported shell command boundaries", () => {
+  const destinations = scanScriptText(
+    [
+      "npm install",
+      "prepare && npm i package",
+      "prepare || npm update package",
+      "prepare; npm publish",
+      "pip install requests",
+      "prepare && pip3 install requests",
+    ].join("\n"),
+    "bootstrap.sh",
+  );
+
+  assert.deepEqual(
+    destinations.map(({ host, command, line }) => ({ host, command, line })),
+    [
+      { host: "registry.npmjs.org", command: "npm", line: 1 },
+      { host: "registry.npmjs.org", command: "npm", line: 2 },
+      { host: "registry.npmjs.org", command: "npm", line: 3 },
+      { host: "registry.npmjs.org", command: "npm", line: 4 },
+      { host: "pypi.org", command: "pip", line: 5 },
+      { host: "files.pythonhosted.org", command: "pip", line: 5 },
+      { host: "pypi.org", command: "pip", line: 6 },
+      { host: "files.pythonhosted.org", command: "pip", line: 6 },
+    ],
+  );
+});
+
+test("does not treat quoted, example, or echoed npm and pip text as registry access", () => {
+  const destinations = scanScriptText(
+    [
+      "echo npm install",
+      "printf 'pip install requests'",
+      "tool --example 'npm publish'",
+      "tool --example 'pip3 install requests'",
+    ].join("\n"),
+  );
+
+  assert.deepEqual(destinations, []);
+});

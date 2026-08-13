@@ -51,7 +51,7 @@ function scanKnownCommands(line, source, lineNumber) {
     if (destination) destinations.push(destination);
   }
 
-  if (/\bnpm\s+(?:install|i|ci|update|publish)\b/.test(trimmed)) {
+  if (hasShellCommand(trimmed, "npm", ["install", "i", "ci", "update", "publish"])) {
     destinations.push(
       normalizeDestination({
         host: "registry.npmjs.org",
@@ -90,7 +90,7 @@ function scanKnownCommands(line, source, lineNumber) {
     );
   }
 
-  if (/\bpip(?:3)?\s+install\b/.test(trimmed)) {
+  if (hasShellCommand(trimmed, "pip(?:3)?", ["install"])) {
     destinations.push(
       normalizeDestination({
         host: "pypi.org",

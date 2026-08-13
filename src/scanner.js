@@ -64,6 +64,32 @@ function scanKnownCommands(line, source, lineNumber) {
     );
   }
 
+  if (hasShellCommand(trimmed, "pnpm", ["install", "i", "add", "update", "up"])) {
+    destinations.push(
+      normalizeDestination({
+        host: "registry.npmjs.org",
+        port: 443,
+        purpose: "package-install",
+        command: "pnpm",
+        source,
+        line: lineNumber,
+      }),
+    );
+  }
+
+  if (hasShellCommand(trimmed, "yarn", ["install", "add", "upgrade", "up"])) {
+    destinations.push(
+      normalizeDestination({
+        host: "registry.yarnpkg.com",
+        port: 443,
+        purpose: "package-install",
+        command: "yarn",
+        source,
+        line: lineNumber,
+      }),
+    );
+  }
+
   if (/\bpip(?:3)?\s+install\b/.test(trimmed)) {
     destinations.push(
       normalizeDestination({
@@ -86,6 +112,12 @@ function scanKnownCommands(line, source, lineNumber) {
   }
 
   return destinations.filter(Boolean);
+}
+
+function hasShellCommand(line, executable, subcommands) {
+  const command = subcommands.join("|");
+  const pattern = new RegExp(`(?:^|(?:&&|\\|\\||;)\\s*)${executable}\\s+(?:${command})(?=\\s|$)`);
+  return pattern.test(line);
 }
 
 function inferCommand(line) {

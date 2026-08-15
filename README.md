@@ -64,6 +64,10 @@ reported against `registry.yarnpkg.com`. Detection is intentionally limited to
 these explicit command forms at shell-command boundaries, rather than command
 names appearing as arguments or arbitrary package-manager subcommands. A command
 boundary is the start of a line or a command following `&&`, `||`, or `;`.
+URL detection follows the same boundaries and requires `curl` or `wget`; Git
+remote detection likewise requires `git clone`. URLs and clone examples passed
+as arguments to output or documentation commands are not reported as network
+intent.
 
 ## Scope
 

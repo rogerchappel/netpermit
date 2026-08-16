@@ -158,3 +158,65 @@ test("does not treat quoted, example, or echoed npm and pip text as registry acc
 
   assert.deepEqual(destinations, []);
 });
+
+test("scans URL and git commands only at supported shell command boundaries", () => {
+  const destinations = scanScriptText(
+    [
+      "curl https://curl.example/archive.tgz",
+      "prepare && wget https://wget.example/archive.tgz",
+      "prepare; git clone git@github.com:example/demo.git",
+    ].join("\n"),
+    "downloads.sh",
+  );
+
+  assert.deepEqual(
+    destinations.map(({ host, port, purpose, command, source, line }) => ({
+      host,
+      port,
+      purpose,
+      command,
+      source,
+      line,
+    })),
+    [
+      {
+        host: "curl.example",
+        port: 443,
+        purpose: "download",
+        command: "curl",
+        source: "downloads.sh",
+        line: 1,
+      },
+      {
+        host: "wget.example",
+        port: 443,
+        purpose: "download",
+        command: "wget",
+        source: "downloads.sh",
+        line: 2,
+      },
+      {
+        host: "github.com",
+        port: 22,
+        purpose: "source-control",
+        command: "git",
+        source: "downloads.sh",
+        line: 3,
+      },
+    ],
+  );
+});
+
+test("does not treat output or example arguments as URL or git access", () => {
+  const destinations = scanScriptText(
+    [
+      'echo "https://example.com/docs"',
+      'printf "%s\\n" "https://example.com/docs"',
+      'tool --example "curl https://example.com/archive.tgz"',
+      'echo "git clone git@github.com:example/demo.git"',
+      'printf "%s\\n" "git clone https://github.com/example/demo.git"',
+    ].join("\n"),
+  );
+
+  assert.deepEqual(destinations, []);
+});

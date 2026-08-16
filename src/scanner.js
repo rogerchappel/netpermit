@@ -23,16 +23,18 @@ export function scanScriptText(content, source = "script") {
 }
 
 function scanUrls(line, source, lineNumber) {
-  return [...line.matchAll(URL_PATTERN)]
-    .map((match) =>
-      destinationFromUrl(cleanToken(match[0]), {
-        purpose: inferPurpose(line),
-        command: inferCommand(line),
-        source,
-        line: lineNumber,
-      }),
-    )
-    .filter(Boolean);
+  return shellCommandSegments(line, "curl|wget").flatMap(({ command, text }) =>
+    [...text.matchAll(URL_PATTERN)]
+      .map((match) =>
+        destinationFromUrl(cleanToken(match[0]), {
+          purpose: "download",
+          command,
+          source,
+          line: lineNumber,
+        }),
+      )
+      .filter(Boolean),
+  );
 }
 
 function scanKnownCommands(line, source, lineNumber) {
@@ -40,9 +42,10 @@ function scanKnownCommands(line, source, lineNumber) {
   if (!trimmed) return [];
 
   const destinations = [];
-  const gitClone = trimmed.match(/\bgit\s+clone\s+([^\s]+)/);
-  if (gitClone) {
-    const destination = parseGitRemote(cleanToken(gitClone[1]), {
+  for (const gitClone of shellCommandSegments(trimmed, "git", "clone")) {
+    const remote = gitClone.text.match(/^git\s+clone\s+([^\s]+)/)?.[1];
+    if (!remote) continue;
+    const destination = parseGitRemote(cleanToken(remote), {
       purpose: "source-control",
       command: "git",
       source,
@@ -120,16 +123,16 @@ function hasShellCommand(line, executable, subcommands) {
   return pattern.test(line);
 }
 
-function inferCommand(line) {
-  const match = stripComment(line).trim().match(/^([A-Za-z0-9_.-]+)/);
-  return match ? match[1].toLowerCase() : undefined;
-}
-
-function inferPurpose(line) {
-  if (/\bgit\s+clone\b/.test(line)) return "source-control";
-  if (/\b(?:npm|pip3?|pnpm|yarn)\b/.test(line)) return "package-install";
-  if (/\b(?:curl|wget)\b/.test(line)) return "download";
-  return "unknown";
+function shellCommandSegments(line, executable, subcommand) {
+  const suffix = subcommand ? `\\s+${subcommand}(?=\\s|$)` : "(?=\\s|$)";
+  const pattern = new RegExp(
+    `(?:^|(?:&&|\\|\\||;)\\s*)(?<command>${executable})${suffix}[^;&|]*`,
+    "gi",
+  );
+  return [...line.matchAll(pattern)].map((match) => ({
+    command: match.groups.command.toLowerCase(),
+    text: match[0].replace(/^(?:&&|\|\||;)\s*/, ""),
+  }));
 }
 
 function cleanToken(token) {

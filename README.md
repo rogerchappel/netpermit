@@ -115,7 +115,7 @@ npm run release:readiness
 npm run release:check
 ```
 
-`release:readiness` validates repository metadata, the package files allowlist, package smoke coverage, and CI placeholder cleanup. `release:check` runs the project build, test, smoke, and package dry-run checks where configured.
+`release:readiness` validates repository metadata, the exact package files allowlist, package smoke coverage, support text, and CI placeholder cleanup. `release:check` runs readiness, build, test, CLI smoke, audit, and an extracted-tarball CLI check.
 
 ## Contributing
 
@@ -124,10 +124,8 @@ should be small, reviewable, and verified before review.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance. Replace
-the default security policy before publishing the generated repository.
-
-These links assume this README has been copied to the generated repository root.
+See [SECURITY.md](SECURITY.md) for supported versions and private vulnerability
+reporting guidance.
 
 ## License
 
@@ -143,12 +141,6 @@ npm run smoke
 npm run package:smoke
 npm run release:check
 ```
-
-## Verification
-
-Run the release-readiness checks that match this package before publishing or opening a release PR.
-
-- `npm run build` - compile the package artifacts
 
 ## Limitations
 

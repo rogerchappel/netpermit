@@ -2,26 +2,19 @@
 
 ## Supported Versions
 
-Replace this section with the supported versions for `../netpermit`.
-
-Example:
-
-```md
 | Version | Supported |
 | --- | --- |
-| .x | Yes |
-| < .0 | No |
-```
+| 0.1.x | Yes |
+| < 0.1 | No |
 
-If the project does not publish versioned releases yet, say that clearly.
+Only the latest patch release in the supported minor line receives fixes.
 
 ## Reporting a Vulnerability
 
 Please do not report suspected vulnerabilities in public issues, pull requests, or discussions.
 
-Ask maintainers for the private security reporting path before sharing details.
-
-If no private reporting path exists yet, ask maintainers through public project channels for a private reporting path. Do not include exploit details, secrets, personal data, or sensitive technical details in public messages.
+Use GitHub's private vulnerability reporting form for this repository:
+https://github.com/rogerchappel/netpermit/security/advisories/new
 
 ## What to Include
 
@@ -37,13 +30,13 @@ When a private reporting path is available, include:
 
 Maintainers review good-faith reports as capacity allows.
 
-Do not imply paid support, guaranteed response times, guaranteed fixes, or service-level agreements unless `../netpermit` explicitly provides them.
+This community project does not promise response or remediation timelines.
 
 ## Scope
 
 In scope:
 
-- Vulnerabilities in ../netpermit.
+- Vulnerabilities in netpermit.
 - Insecure default configuration shipped by this project.
 - CI, release, or dependency guidance maintained by this project.
 

@@ -6,15 +6,31 @@ const packagePath = path.join(root, 'package.json');
 const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 const scripts = packageJson.scripts ?? {};
 const failures = [];
+const expectedFiles = ['src', 'fixtures', 'README.md', 'LICENSE', 'SECURITY.md', 'CHANGELOG.md', 'CONTRIBUTING.md'];
 
 function requireField(condition, message) {
   if (!condition) failures.push(message);
 }
 
 requireField(packageJson.repository, 'package.json must declare repository metadata');
-requireField(Array.isArray(packageJson.files) && packageJson.files.length > 0, 'package.json must declare a non-empty files allowlist');
-requireField(scripts['package:smoke'], 'package.json scripts must include package:smoke');
+requireField(Array.isArray(packageJson.files), 'package.json must declare a files allowlist');
+if (Array.isArray(packageJson.files)) {
+  requireField(JSON.stringify(packageJson.files) === JSON.stringify(expectedFiles),
+    `package.json files must exactly match maintained entries: ${expectedFiles.join(', ')}`);
+  for (const entry of packageJson.files) {
+    requireField(fs.existsSync(path.join(root, entry)), `package.json files entry does not exist: ${entry}`);
+  }
+}
+requireField(scripts['package:smoke'] === 'node scripts/package-smoke.mjs',
+  'package:smoke must run the maintained package contract assertions');
 requireField(scripts['release:check'], 'package.json scripts must include release:check');
+requireField(scripts['release:check']?.includes('release:readiness'), 'release:check must run release:readiness');
+
+for (const file of ['README.md', 'SECURITY.md']) {
+  const content = fs.readFileSync(path.join(root, file), 'utf8');
+  requireField(!/replace (this|the default)|\.\.\/netpermit|template becomes an app|customization TODO/i.test(content),
+    `${file} still contains placeholder release or support text`);
+}
 
 const workflowDir = path.join(root, '.github', 'workflows');
 if (fs.existsSync(workflowDir)) {

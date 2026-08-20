@@ -9,6 +9,9 @@ security posture before using it in production.
 
 ## Install
 
+Node.js 18 or later is required. CI verifies both the minimum supported release
+(Node.js 18) and the maintained current release (Node.js 22).
+
 Install from npm once published, or run directly from a checkout:
 
 ```sh

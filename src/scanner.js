@@ -43,7 +43,7 @@ function scanKnownCommands(line, source, lineNumber) {
 
   const destinations = [];
   for (const gitClone of shellCommandSegments(trimmed, "git", "clone")) {
-    const remote = gitClone.text.match(/^git\s+clone\s+([^\s]+)/)?.[1];
+    const remote = gitCloneRemote(gitClone.text);
     if (!remote) continue;
     const destination = parseGitRemote(cleanToken(remote), {
       purpose: "source-control",
@@ -115,6 +115,74 @@ function scanKnownCommands(line, source, lineNumber) {
   }
 
   return destinations.filter(Boolean);
+}
+
+const GIT_CLONE_VALUE_OPTIONS = new Set([
+  "--branch",
+  "--config",
+  "--depth",
+  "--filter",
+  "--jobs",
+  "--origin",
+  "--reference",
+  "--reference-if-able",
+  "--separate-git-dir",
+  "--server-option",
+  "--shallow-exclude",
+  "--shallow-since",
+  "--template",
+  "--upload-pack",
+  "-b",
+  "-c",
+  "-j",
+  "-o",
+  "-u",
+]);
+
+const GIT_CLONE_FLAG_OPTIONS = new Set([
+  "--bare",
+  "--dissociate",
+  "--local",
+  "--mirror",
+  "--no-checkout",
+  "--no-hardlinks",
+  "--no-local",
+  "--no-reject-shallow",
+  "--no-single-branch",
+  "--no-tags",
+  "--progress",
+  "--quiet",
+  "--recurse-submodules",
+  "--reject-shallow",
+  "--remote-submodules",
+  "--shallow-submodules",
+  "--shared",
+  "--single-branch",
+  "--sparse",
+  "--tags",
+  "--verbose",
+  "-l",
+  "-n",
+  "-q",
+  "-s",
+  "-v",
+]);
+
+function gitCloneRemote(command) {
+  const tokens = command.trim().split(/\s+/).slice(2);
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (token === "--") return tokens[index + 1] || null;
+    if (!token.startsWith("-")) return token;
+    if (GIT_CLONE_FLAG_OPTIONS.has(token) || token.startsWith("--recurse-submodules=")) continue;
+    if ([...GIT_CLONE_VALUE_OPTIONS].some((option) => token.startsWith(`${option}=`))) continue;
+    if (/^-[bcjou].+/.test(token) || /^-j\d+$/.test(token)) continue;
+    if (!GIT_CLONE_VALUE_OPTIONS.has(token)) return null;
+    const value = tokens[index + 1];
+    if (!value || value.startsWith("-")) return null;
+    index += 1;
+  }
+  return null;
 }
 
 function hasShellCommand(line, executable, subcommands) {

@@ -68,9 +68,11 @@ these explicit command forms at shell-command boundaries, rather than command
 names appearing as arguments or arbitrary package-manager subcommands. A command
 boundary is the start of a line or a command following `&&`, `||`, or `;`.
 URL detection follows the same boundaries and requires `curl` or `wget`; Git
-remote detection likewise requires `git clone`. URLs and clone examples passed
-as arguments to output or documentation commands are not reported as network
-intent.
+remote detection likewise requires `git clone`. Common clone flags and options
+with values (for example, `--single-branch`, `--depth 1`, and `--branch main`)
+may precede the remote; malformed, option-only, and unknown option forms are
+ignored rather than guessed. URLs and clone examples passed as arguments to
+output or documentation commands are not reported as network intent.
 
 ## Scope
 

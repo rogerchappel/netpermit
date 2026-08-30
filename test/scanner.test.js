@@ -207,6 +207,42 @@ test("scans URL and git commands only at supported shell command boundaries", ()
   );
 });
 
+test("scans git clone remotes after options and their values", () => {
+  const destinations = scanScriptText(
+    [
+      "git clone --depth 1 https://github.com/example/shallow.git",
+      "git clone --branch main --single-branch git@github.com:example/branch.git",
+      "git clone -c protocol.version=2 --filter=blob:none ssh://git@example.com/filtered.git",
+      "git clone -- https://github.com/example/dashed.git checkout",
+    ].join("\n"),
+    "clone.sh",
+  );
+
+  assert.deepEqual(
+    destinations.map(({ host, port, purpose, command, line }) => ({ host, port, purpose, command, line })),
+    [
+      { host: "github.com", port: 443, purpose: "source-control", command: "git", line: 1 },
+      { host: "github.com", port: 22, purpose: "source-control", command: "git", line: 2 },
+      { host: "example.com", port: 22, purpose: "source-control", command: "git", line: 3 },
+      { host: "github.com", port: 443, purpose: "source-control", command: "git", line: 4 },
+    ],
+  );
+});
+
+test("ignores malformed and option-only git clone commands", () => {
+  const destinations = scanScriptText(
+    [
+      "git clone --depth",
+      "git clone --branch main",
+      "git clone --single-branch",
+      "git clone --",
+      "git clone --depth --single-branch https://github.com/example/not-a-depth.git",
+    ].join("\n"),
+  );
+
+  assert.deepEqual(destinations, []);
+});
+
 test("does not treat output or example arguments as URL or git access", () => {
   const destinations = scanScriptText(
     [

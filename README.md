@@ -66,7 +66,9 @@ pip/pip3 `install`. pnpm is reported against `registry.npmjs.org`; Yarn is
 reported against `registry.yarnpkg.com`. Detection is intentionally limited to
 these explicit command forms at shell-command boundaries, rather than command
 names appearing as arguments or arbitrary package-manager subcommands. A command
-boundary is the start of a line or a command following `&&`, `||`, or `;`.
+boundary is the start of a line or a command following `&&`, `||`, `;`, a
+pipeline `|`, or a background separator `&`. Separators inside quoted strings
+and example/output text do not start commands.
 URL detection follows the same boundaries and requires `curl` or `wget`; Git
 remote detection likewise requires `git clone`. Common clone flags and options
 with values (for example, `--single-branch`, `--depth 1`, and `--branch main`)

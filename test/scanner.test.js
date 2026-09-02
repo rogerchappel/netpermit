@@ -146,6 +146,30 @@ test("scans npm and pip only at supported shell command boundaries", () => {
   );
 });
 
+test("scans package managers after pipeline and background boundaries", () => {
+  const destinations = scanScriptText(
+    [
+      "prepare | npm ci",
+      "prepare & pnpm add package",
+      "prepare | yarn upgrade package",
+      "prepare & pip3 install requests",
+      "prepare || npm update package",
+    ].join("\n"),
+  );
+
+  assert.deepEqual(
+    destinations.map(({ host, command, line }) => ({ host, command, line })),
+    [
+      { host: "registry.npmjs.org", command: "npm", line: 1 },
+      { host: "registry.npmjs.org", command: "pnpm", line: 2 },
+      { host: "registry.yarnpkg.com", command: "yarn", line: 3 },
+      { host: "pypi.org", command: "pip", line: 4 },
+      { host: "files.pythonhosted.org", command: "pip", line: 4 },
+      { host: "registry.npmjs.org", command: "npm", line: 5 },
+    ],
+  );
+});
+
 test("does not treat quoted, example, or echoed npm and pip text as registry access", () => {
   const destinations = scanScriptText(
     [
@@ -207,6 +231,28 @@ test("scans URL and git commands only at supported shell command boundaries", ()
   );
 });
 
+test("scans URL and git commands after pipeline and background boundaries", () => {
+  const destinations = scanScriptText(
+    [
+      "prepare | curl https://pipe.example/archive.tgz",
+      "prepare & wget https://background.example/archive.tgz",
+      "prepare | git clone git@github.com:example/piped.git",
+      "prepare & git clone https://github.com/example/background.git",
+    ].join("\n"),
+    "boundaries.sh",
+  );
+
+  assert.deepEqual(
+    destinations.map(({ host, port, command, line }) => ({ host, port, command, line })),
+    [
+      { host: "pipe.example", port: 443, command: "curl", line: 1 },
+      { host: "background.example", port: 443, command: "wget", line: 2 },
+      { host: "github.com", port: 22, command: "git", line: 3 },
+      { host: "github.com", port: 443, command: "git", line: 4 },
+    ],
+  );
+});
+
 test("scans git clone remotes after options and their values", () => {
   const destinations = scanScriptText(
     [
@@ -251,6 +297,11 @@ test("does not treat output or example arguments as URL or git access", () => {
       'tool --example "curl https://example.com/archive.tgz"',
       'echo "git clone git@github.com:example/demo.git"',
       'printf "%s\\n" "git clone https://github.com/example/demo.git"',
+      "printf 'example | curl https://pipe.example/archive.tgz'",
+      'echo "example & wget https://background.example/archive.tgz"',
+      "tool --example 'prepare | git clone git@github.com:example/demo.git'",
+      "printf 'prepare & npm install'",
+      'echo "prepare | pip install requests"',
     ].join("\n"),
   );
 

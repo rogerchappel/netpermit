@@ -187,20 +187,43 @@ function gitCloneRemote(command) {
 
 function hasShellCommand(line, executable, subcommands) {
   const command = subcommands.join("|");
-  const pattern = new RegExp(`(?:^|(?:&&|\\|\\||;)\\s*)${executable}\\s+(?:${command})(?=\\s|$)`);
-  return pattern.test(line);
+  const pattern = new RegExp(`(?:^|(?:&&|\\|\\||[|&;])\\s*)${executable}\\s+(?:${command})(?=\\s|$)`);
+  return pattern.test(maskShellQuotedText(line));
 }
 
 function shellCommandSegments(line, executable, subcommand) {
   const suffix = subcommand ? `\\s+${subcommand}(?=\\s|$)` : "(?=\\s|$)";
   const pattern = new RegExp(
-    `(?:^|(?:&&|\\|\\||;)\\s*)(?<command>${executable})${suffix}[^;&|]*`,
+    `(?:^|(?:&&|\\|\\||[|&;])\\s*)(?<command>${executable})${suffix}[^;&|]*`,
     "gi",
   );
-  return [...line.matchAll(pattern)].map((match) => ({
+  return [...maskShellQuotedText(line).matchAll(pattern)].map((match) => ({
     command: match.groups.command.toLowerCase(),
-    text: match[0].replace(/^(?:&&|\|\||;)\s*/, ""),
+    text: line.slice(match.index, match.index + match[0].length).replace(/^(?:&&|\|\||[|&;])\s*/, ""),
   }));
+}
+
+function maskShellQuotedText(line) {
+  const characters = [...line];
+  let quote = null;
+  let escaped = false;
+  for (let index = 0; index < characters.length; index += 1) {
+    const character = characters[index];
+    if (quote) {
+      characters[index] = " ";
+      if (escaped) {
+        escaped = false;
+      } else if (character === "\\" && quote !== "'") {
+        escaped = true;
+      } else if (character === quote) {
+        quote = null;
+      }
+    } else if (character === "'" || character === '"' || character === "`") {
+      quote = character;
+      characters[index] = " ";
+    }
+  }
+  return characters.join("");
 }
 
 function cleanToken(token) {

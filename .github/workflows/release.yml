@@ -5,9 +5,10 @@ on:
     tags:
       - 'v*.*.*'
 
+# A tag push alone must never publish a GitHub release. A maintainer must
+# explicitly approve the protected environment before the release job runs.
 permissions:
-  contents: write
-  id-token: write
+  contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -16,6 +17,9 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: github-release
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
         with:

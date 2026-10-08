@@ -8,10 +8,13 @@ on:
       - package.json
       - package-lock.json
       - .github/workflows/release*.yml
+      - docs/releasing.md
 
 permissions:
   contents: read
 
+# A clean tag push runs only release.yml and cannot invoke this preview workflow.
+# Validate GitHub workflow trigger/event safety as part of the release dry run.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   RELEASEBOX_REF: v0.1.0

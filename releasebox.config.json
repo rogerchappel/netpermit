@@ -19,6 +19,8 @@
   },
   "release": {
     "mode": "reviewed",
+    "githubReleaseEnvironment": "github-release",
+    "requiredEnvironmentReviewers": true,
     "createGithubRelease": true,
     "publishNpm": false,
     "updateHomebrew": false

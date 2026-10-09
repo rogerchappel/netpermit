@@ -40,6 +40,17 @@ if (fs.existsSync(workflowDir)) {
   for (const file of workflowFiles) {
     const workflow = fs.readFileSync(path.join(workflowDir, file), 'utf8');
     requireField(!/TODO|FIXME|template becomes an app|customization TODO/i.test(workflow), '.github/workflows/' + file + ' still contains placeholder text');
+    if (/^release(?:-dry-run)?\.ya?ml$/.test(file)) {
+      for (const [lineIndex, line] of workflow.split(/\r?\n/).entries()) {
+        if (/^\s*-?\s*uses:\s*/.test(line)) {
+          requireField(/@(?:[a-f0-9]{40})(?:\s+#\s+.+)?\s*$/.test(line),
+            `.github/workflows/${file}:${lineIndex + 1} must pin its action to a full commit SHA`);
+        }
+      }
+      const releaseboxRef = workflow.match(/^\s*RELEASEBOX_REF:\s*([\"']?)([^\s\"']+)\1(?:\s+#.*)?\s*$/m)?.[2];
+      requireField(/^[a-f0-9]{40}$/.test(releaseboxRef ?? ''),
+        `.github/workflows/${file} RELEASEBOX_REF must be a full commit SHA`);
+    }
   }
 
   const combined = workflowFiles.map((file) => fs.readFileSync(path.join(workflowDir, file), 'utf8')).join('\n');
